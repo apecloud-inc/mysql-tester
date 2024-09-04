@@ -1,0 +1,86 @@
+delete from mysql.cdc_consumer;
+
+create cdc if not exists cdc1
+with (
+    desc='cdc1 desc',
+    enable='false',
+    wasm_binary_name='wasm1',
+    env='ENV=123'
+);
+
+# should work, desc will be set to empty, enable will be set to false, env will be set to empty
+create cdc if not exists cdc2
+with (
+    wasm_binary_name='wasm2'
+);
+
+# error, wasm binary name must be set
+--error 1105
+create cdc if not exists cdc3
+with (
+    desc='cdc3 desc'
+);
+
+# error, enable should be true or false
+--error 1105
+create cdc if not exists cdc4
+with (
+    enable='yes'
+);
+
+# no cdc4, but won't cause error
+alter cdc cdc4
+with (
+    name='mycdc'
+);
+
+
+ALTER CDC cdc2
+with (
+    name='mycdc2'
+);
+
+ALTER CDC mycdc2
+with (
+    desc='mycdc2 desc'
+);
+
+# error
+--error 1105
+ALTER CDC mycdc2
+with (
+    enable='fff'
+);
+
+ALTER CDC mycdc2
+with (
+    enable='t'
+);
+
+ALTER CDC mycdc2
+with (
+    wasm_binary_name='mydcd2 wasm'
+);
+
+ALTER CDC mycdc2
+with (
+    env='mydcd2 env'
+);
+
+ALTER CDC cdc1
+with (
+    name='mycdc1',
+    desc='mycdc1 desc',
+    enable='True',
+    wasm_binary_name='mycdc1 wasm',
+    env='mycdc1 env'
+);
+
+# the show cmd contains time info, which will not be matched with the value in .result during MTR testing executed by github action
+# show cdcs;
+# show cdc mycdc2;
+# show create cdc mycdc2;
+
+drop cdc mycdc1;
+
+drop cdc mycdc2;
