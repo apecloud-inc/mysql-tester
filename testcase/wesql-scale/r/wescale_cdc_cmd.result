@@ -1,0 +1,61 @@
+delete from mysql.cdc_consumer;
+create cdc if not exists cdc1
+with (
+desc='cdc1 desc',
+enable='false',
+wasm_binary_name='wasm1',
+env='ENV=123'
+);
+create cdc if not exists cdc2
+with (
+wasm_binary_name='wasm2'
+);
+create cdc if not exists cdc3
+with (
+desc='cdc3 desc'
+);
+Error 1105: wasm binary name is required
+create cdc if not exists cdc4
+with (
+enable='yes'
+);
+Error 1105: wasm binary name is required
+alter cdc cdc4
+with (
+name='mycdc'
+);
+ALTER CDC cdc2
+with (
+name='mycdc2'
+);
+ALTER CDC mycdc2
+with (
+desc='mycdc2 desc'
+);
+ALTER CDC mycdc2
+with (
+enable='fff'
+);
+Error 1105: enable field can't be parse as bool type, strconv.ParseBool: parsing "fff": invalid syntax
+ALTER CDC mycdc2
+with (
+enable='t'
+);
+ALTER CDC mycdc2
+with (
+wasm_binary_name='mydcd2 wasm'
+);
+ALTER CDC mycdc2
+with (
+env='mydcd2 env'
+);
+ALTER CDC cdc1
+with (
+name='mycdc1',
+desc='mycdc1 desc',
+enable='True',
+wasm_binary_name='mycdc1 wasm',
+env='mycdc1 env'
+);
+drop cdc mycdc1;
+drop cdc mycdc2;
